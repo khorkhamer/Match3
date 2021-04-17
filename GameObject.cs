@@ -1,4 +1,6 @@
 using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Match3
 {
@@ -17,9 +19,9 @@ namespace Match3
     }
     public static class Direction
     {
-        public static (double, double) Up = (0.0, 1.0);
+        public static (double, double) Up = (0.0, -1.0);
         public static (double, double) Right = (1.0, 0.0);
-        public static (double, double) Down = (0.0, -1.0);
+        public static (double, double) Down = (0.0, 1.0);
         public static (double, double) Left = (-1.0, 0.0);
     }
     public class GameObject
@@ -46,6 +48,11 @@ namespace Match3
             return ((double) (x * (int) MarbleSize.Width), (double) (y * (int) MarbleSize.Height));
         }
 
+        public void Draw(ref SpriteBatch sB)
+        {
+            sB.Draw(_sprite.Texture, new Vector2((float)_worldCoordinate.Item1, (float)_worldCoordinate.Item2), Color.White);
+        }
+
         public void Move(double delta)
         {
             if (!IsMoving)
@@ -59,6 +66,7 @@ namespace Match3
                 _logicalCoordinate = (_logicalCoordinate.Item1 + (int)Math.Truncate(_direction.Item1),
                     _logicalCoordinate.Item2 + (int)Math.Truncate(_direction.Item2));
                 _adjustment = 0;
+                IsMoving = false;
             }
         }
 

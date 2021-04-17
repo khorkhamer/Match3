@@ -21,7 +21,6 @@ namespace Match3
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            _gM = new GameManager();
 
             base.Initialize();
         }
@@ -30,6 +29,7 @@ namespace Match3
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Resource.Init(Content);
+            _gM = new GameManager();
 
             // TODO: use this.Content to load your game content here
         }
@@ -42,7 +42,7 @@ namespace Match3
 
             // TODO: Add your update logic here
             _delta = (double) gameTime.ElapsedGameTime.TotalSeconds;
-            _gM.UpdateState();
+            _gM.UpdateState(_delta);
             _gM.MoveElements(_delta);
 
             base.Update(gameTime);

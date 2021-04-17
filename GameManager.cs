@@ -7,12 +7,13 @@ namespace Match3
     public class GameManager
     {
         private GameState _state;
+        private double _frameCount = (double)60;
 
         private GameObject CreateMarble(int x, int y)
         {
-            var go = new Marble((x, y));
+            var mr = new Marble((x, y));
             var texture = Resource.Yellow;
-            switch (go.GetColor())
+            switch (mr.GetColor())
             {
                 case MarbleColor.Blue:
                     texture = Resource.Blue;
@@ -29,9 +30,9 @@ namespace Match3
                 default:
                     break;
             }
-            go.SetSprite(new Sprite(texture,
-                new Vector2((float)go.GetWorldCoord().Item1, (float)go.GetWorldCoord().Item2)));
-            return go;
+            var sp = new Sprite(texture);
+            mr.SetSprite(sp);
+            return mr;
         }
 
         private void Init()
@@ -50,18 +51,38 @@ namespace Match3
             Init();
         }
 
-        public void UpdateState()
+        public void UpdateState(double delta)
         {
+            if ((int) Math.Truncate(_frameCount) < 60)
+            {
+                _frameCount += (delta * 60);
+                return;
+            }
+
+            var tmp = new List<GameObject>(100);
             foreach (var elem in _state.Get())
             {
-                if (elem.GetLogicalCoord().Item2 != 7)
+                if (elem.GetLogicalCoord().Item2 < 7)
                 {
-                    if (!_state.Contains((elem.GetLogicalCoord().Item1, elem.GetLogicalCoord().Item2 - 1)))
+                    if (!_state.Contains((elem.GetLogicalCoord().Item1, elem.GetLogicalCoord().Item2 + 1)))
                     {
                         elem.IsMoving = true;
                     }
                 }
+
+                if (_state.Get().Count < 64 && (int)Math.Truncate(_frameCount) == 60)
+                {
+                    if (!_state.Contains((elem.GetLogicalCoord().Item1, elem.GetLogicalCoord().Item2 - 1)))
+                        tmp.Add(CreateMarble(elem.GetLogicalCoord().Item1, -1));
+                }
             }
+
+            foreach (var elem in tmp)
+            {
+                _state.Add(elem);
+            }
+
+            _frameCount = (double)0;
         }
 
         public void MoveElements(double delta)
