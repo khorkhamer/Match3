@@ -8,6 +8,12 @@ namespace Match3
         Red,
         Yellow
     }
+
+    enum MarbleSize
+    {
+        Width = 60,
+        Height = Width
+    }
     public static class Direction
     {
         public static (float, float) Up = (0f, 1f);
@@ -20,9 +26,10 @@ namespace Match3
         private (int, int) _logicalCoordinate;
         private float _adjustment;
         private (float, float) _wordCoordinate;
-        private bool _isMoving;
         private float _velocity;
         private (float, float) _direction;
+        public bool IsMoving { get; set; }
         public (int, int) GetLogicalCoord() => _logicalCoordinate;
+        /sdfasdfasdf:w
     }
 }
