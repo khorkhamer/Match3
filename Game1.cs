@@ -8,7 +8,8 @@ namespace Match3
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private float _delta;
+        private GameManager _gM;
+        private double _delta;
 
         public Game1()
         {
@@ -20,6 +21,7 @@ namespace Match3
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            _gM = new GameManager();
 
             base.Initialize();
         }
@@ -27,6 +29,7 @@ namespace Match3
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            Resource.Init(Content);
 
             // TODO: use this.Content to load your game content here
         }
@@ -38,7 +41,9 @@ namespace Match3
                 Exit();
 
             // TODO: Add your update logic here
-            _delta = (float) gameTime.ElapsedGameTime.TotalSeconds;
+            _delta = (double) gameTime.ElapsedGameTime.TotalSeconds;
+            _gM.UpdateState();
+            _gM.MoveElements(_delta);
 
             base.Update(gameTime);
         }
@@ -49,6 +54,7 @@ namespace Match3
 
             // TODO: Add your drawing code here
             _spriteBatch.Begin();
+            Renderer.Draw(ref _spriteBatch, _gM.GetState());
             _spriteBatch.End();
 
             base.Draw(gameTime);

@@ -24,17 +24,32 @@ namespace Match3
     }
     public class GameObject
     {
-        private (int, int) _logicalCoordinate;
+        private Sprite _sprite;
+        private (int,int) _logicalCoordinate;
         private double _adjustment;
         private (double, double) _worldCoordinate;
         private double _velocity;
-        private (double, double) _direction;
+        private (double,double) _direction;
         public bool IsMoving { get; set; }
-        public (int, int) GetLogicalCoord() => _logicalCoordinate;
-        public (double, double) GetWorldCoord() => _worldCoordinate;
+
+        public void SetSprite(Sprite sp)
+        {
+            _sprite = sp;
+        }
+
+        public Sprite GetSprite() => _sprite;
+        public (int,int) GetLogicalCoord() => _logicalCoordinate;
+        public (double,double) GetWorldCoord() => _worldCoordinate;
+
+        public (double,double) TranslateCoordinate(int x, int y)
+        {
+            return ((double) (x * (int) MarbleSize.Width), (double) (y * (int) MarbleSize.Height));
+        }
 
         public void Move(double delta)
         {
+            if (!IsMoving)
+                return;
             var dv = delta * _velocity;
             var dir = (_direction.Item1 * dv, _direction.Item2 * dv);
             _adjustment += dv;
@@ -50,6 +65,7 @@ namespace Match3
         public GameObject((int, int) pos, (double, double) dir, double vel)
         {
             _logicalCoordinate = pos;
+            _worldCoordinate = TranslateCoordinate(pos.Item1, pos.Item2);
             _direction = dir;
             _adjustment = (double)MarbleSize.Height;
             _velocity = vel;
@@ -59,11 +75,14 @@ namespace Match3
     public class Marble : GameObject
     {
         private MarbleColor _color;
+        private Random _rnd;
+        public MarbleColor GetColor() => _color;
 
-        public Marble((int, int) pos, MarbleColor color)
+        public Marble((int, int) pos)
             : base(pos, Direction.Down, (double)MarbleSize.Height)
         {
-            _color = color;
+            _rnd = new Random();
+            _color = (MarbleColor)_rnd.Next(1, 5);
         }
     }
 }
