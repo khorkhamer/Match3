@@ -41,9 +41,11 @@ namespace Match3
                 Exit();
 
             // TODO: Add your update logic here
-            _delta = (double) gameTime.ElapsedGameTime.TotalSeconds;
-            _gM.UpdateState(_delta);
-            _gM.MoveElements(_delta);
+            _delta = (double)gameTime.ElapsedGameTime.TotalSeconds;
+            _gM.UpdateState();
+            _gM.LogicalUpdateElements();
+            _gM.WorldUpdateElements(_delta);
+            _gM.ReduceFrameCounter(_delta);
 
             base.Update(gameTime);
         }

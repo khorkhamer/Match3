@@ -19,19 +19,19 @@ namespace Match3
     }
     public static class Direction
     {
-        public static (double, double) Up = (0.0, -1.0);
-        public static (double, double) Right = (1.0, 0.0);
-        public static (double, double) Down = (0.0, 1.0);
-        public static (double, double) Left = (-1.0, 0.0);
+        public static (int X,int Y) Up = (0, -1);
+        public static (int X,int Y) Right = (1, 0);
+        public static (int X,int Y) Down = (0, 1);
+        public static (int X,int Y) Left = (-1, 0);
     }
     public class GameObject
     {
         private Sprite _sprite;
-        private (int,int) _logicalCoordinate;
+        private (int X,int Y) _logicalCoordinate;
+        private (double X,double Y) _worldCoordinate;
         private double _adjustment;
-        private (double, double) _worldCoordinate;
         private double _velocity;
-        private (double,double) _direction;
+        private (int X,int Y) _direction;
         public bool IsMoving { get; set; }
 
         public void SetSprite(Sprite sp)
@@ -39,20 +39,24 @@ namespace Match3
             _sprite = sp;
         }
 
-        public Sprite GetSprite() => _sprite;
-        public (int,int) GetLogicalCoord() => _logicalCoordinate;
-        public (double,double) GetWorldCoord() => _worldCoordinate;
-
-        public (double,double) TranslateCoordinate(int x, int y)
+        public void SetWorldCoordinate((double X, double Y) coord)
         {
-            return ((double) (x * (int) MarbleSize.Width), (double) (y * (int) MarbleSize.Height));
+            _worldCoordinate = coord;
+        }
+
+        public (int X,int Y) GetLogicalCoord() => _logicalCoordinate;
+        public (double X,double Y) GetWorldCoord() => _worldCoordinate;
+
+        public (double X,double Y) TranslateToWorldCoordinate(int x, int y)
+        {
+            return ((double)(x * (int) MarbleSize.Width), (double)(y * (int) MarbleSize.Height));
         }
 
         public void Draw(ref SpriteBatch sB)
         {
-            sB.Draw(_sprite.Texture, new Vector2((float)_worldCoordinate.Item1, (float)_worldCoordinate.Item2), Color.White);
+            sB.Draw(_sprite.Texture, new Vector2((float)_worldCoordinate.X, (float)_worldCoordinate.Y), Color.White);
         }
-
+/*
         public void Move(double delta)
         {
             if (!IsMoving)
@@ -63,19 +67,32 @@ namespace Match3
             _worldCoordinate = (_worldCoordinate.Item1 + dir.Item1, _worldCoordinate.Item2 + dir.Item2);
             if ((int)Math.Truncate(_adjustment) == (int)MarbleSize.Width)
             {
-                _logicalCoordinate = (_logicalCoordinate.Item1 + (int)Math.Truncate(_direction.Item1),
-                    _logicalCoordinate.Item2 + (int)Math.Truncate(_direction.Item2));
+                _logicalCoordinate = (_logicalCoordinate.Item1 + _direction.Item1,
+                    _logicalCoordinate.Item2 + _direction.Item2);
                 _adjustment = 0;
                 IsMoving = false;
             }
         }
+*/
+        public void MoveInLocalCoord()
+        {
+            _logicalCoordinate = (_logicalCoordinate.X + _direction.X, _logicalCoordinate.Y + _direction.Y);
+            IsMoving = false;
+        }
 
-        public GameObject((int, int) pos, (double, double) dir, double vel)
+        public void MoveInWorldCoord(double delta)
+        {
+            var v = delta * 60.0;
+            _worldCoordinate = (_worldCoordinate.X + (v * _direction.X), _worldCoordinate.Y + (v * _direction.Y));
+            Console.WriteLine("{0} -- {1}", _worldCoordinate.X, _worldCoordinate.Y);
+        }
+
+        public GameObject((int X,int Y) pos, (int X,int Y) dir, double vel)
         {
             _logicalCoordinate = pos;
-            _worldCoordinate = TranslateCoordinate(pos.Item1, pos.Item2);
+            _worldCoordinate = TranslateToWorldCoordinate(pos.X, pos.Y);
             _direction = dir;
-            _adjustment = (double)MarbleSize.Height;
+            _adjustment = 0;
             _velocity = vel;
         }
     }
@@ -83,14 +100,15 @@ namespace Match3
     public class Marble : GameObject
     {
         private MarbleColor _color;
-        private Random _rnd;
+//        private Random _rnd;
         public MarbleColor GetColor() => _color;
 
-        public Marble((int, int) pos)
+        public Marble((int, int) pos, MarbleColor color)
             : base(pos, Direction.Down, (double)MarbleSize.Height)
         {
-            _rnd = new Random();
-            _color = (MarbleColor)_rnd.Next(1, 5);
+//            _rnd = new Random();
+//            _color = (MarbleColor)_rnd.Next(1, 5);
+            _color = color;
         }
     }
 }

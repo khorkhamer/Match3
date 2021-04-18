@@ -7,11 +7,12 @@ namespace Match3
     public class GameManager
     {
         private GameState _state;
-        private double _frameCount = (double)60;
+        private Random _rnd;
+        private double _frameCount = 0.0;
 
         private GameObject CreateMarble(int x, int y)
         {
-            var mr = new Marble((x, y));
+            var mr = new Marble((x, y), (MarbleColor)_rnd.Next(1, 6));
             var texture = Resource.Yellow;
             switch (mr.GetColor())
             {
@@ -30,8 +31,7 @@ namespace Match3
                 default:
                     break;
             }
-            var sp = new Sprite(texture);
-            mr.SetSprite(sp);
+            mr.SetSprite(new Sprite(texture));
             return mr;
         }
 
@@ -47,10 +47,26 @@ namespace Match3
 
         public GameManager()
         {
+            _rnd = new Random();
             _state = new GameState();
             Init();
         }
 
+        private bool IsFrameEnd()
+        {
+            return !(_frameCount < 1.0);
+        }
+
+        public void ReduceFrameCounter(double delta)
+        {
+            if (IsFrameEnd())
+            {
+                _frameCount = 0.0;
+                return;
+            }
+            _frameCount += delta;
+        }
+/*
         public void UpdateState(double delta)
         {
             if ((int) Math.Truncate(_frameCount) < 60)
@@ -90,6 +106,47 @@ namespace Match3
             foreach (var elem in _state.Get())
             {
                 elem.Move(delta);
+            }
+        }
+*/
+        public void LogicalUpdateElements()
+        {
+            foreach (var elem in _state.Get())
+            {
+                if (elem.IsMoving)
+                {
+                    if (IsFrameEnd())
+                    {
+                        elem.MoveInLocalCoord();
+                        var coord = elem.TranslateToWorldCoordinate(elem.GetLogicalCoord().X,
+                            elem.GetLogicalCoord().Y);
+                        elem.SetWorldCoordinate(coord);
+                    }
+                }
+            }
+        }
+
+        public void WorldUpdateElements(double delta)
+        {
+            foreach (var e in _state.Get())
+            {
+                if (!e.IsMoving)
+                    continue;
+                e.MoveInWorldCoord(delta);
+            }
+        }
+
+        public void UpdateState()
+        {
+            if (!IsFrameEnd())
+                return;
+            foreach (var elem in _state.Get())
+            {
+                if (elem.GetLogicalCoord().Y < 7)
+                {
+                    if (!_state.Contains((elem.GetLogicalCoord().X, elem.GetLogicalCoord().Y + 1)))
+                        elem.IsMoving = true;
+                }
             }
         }
     }
