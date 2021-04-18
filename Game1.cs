@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -43,10 +44,9 @@ namespace Match3
             // TODO: Add your update logic here
             _delta = (double)gameTime.ElapsedGameTime.TotalSeconds;
             _gM.UpdateState();
-            _gM.LogicalUpdateElements();
-            _gM.WorldUpdateElements(_delta);
-            _gM.ReduceFrameCounter(_delta);
-
+            _gM.UpdateLocalCoord();
+            _gM.UpdateWorldCoord(_delta);
+            _gM.IncFrameCounter(_delta);
             base.Update(gameTime);
         }
 
